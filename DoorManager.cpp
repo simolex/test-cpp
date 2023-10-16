@@ -1,63 +1,88 @@
 #include "DoorManager.h"
 
-
-void DoorManager::getStateGui(DoorState state){
+void DoorManager::getStateGui(DoorState state)
+{
 
     newState = state;
 
-    int retry = 5;
-    QTime dieTime= QTime::currentTime();
-
-    while(newState != currentState && retry>0){
-        if(QTime::currentTime()>dieTime){
-            engine->sendSetStateCommand(state);
-            dieTime= QTime::currentTime().addMSecs(200);
-            retry--;
-        }
-        
+    if (this->verifyChange() == 0)
+    {
+        gui->setFailString("Ворота не доступны. Проверьте свяэь с воротами!");
+        return;
     }
 
-    if (retry == 0) {
+    if (newState == currentState)
+    {
+        return;
+    }
+
+    int retry = 5;
+    QTime dieTime = QTime::currentTime();
+
+    while (newState != currentState && retry > 0)
+    {
+        if (QTime::currentTime() > dieTime)
+        {
+            engine->sendSetStateCommand(state);
+            dieTime = QTime::currentTime().addMSecs(200);
+            retry--;
+        }
+    }
+
+    if (retry == 0)
+    {
         gui->setFailString("Ворота не доступны. Проверьте свяэь с воротами!");
         return;
     }
 
     onlineEngine = false;
-    moveTimer->start(30000);    
+    moveTimer->start(30000);
 }
 
-void DoorManager::stateEngineIsSetting(){
+void DoorManager::stateEngineIsSetting()
+{
     currentState = newState;
 }
 
-void  DoorManager::stateEngineIsGetting(DoorState state){
+void DoorManager::stateEngineIsGetting(DoorState state)
+{
     currentState = state;
     onlineEngine = true;
 };
 
-
-void DoorManager::slotMoveTimout(){
+int DoorManager::verifyChange()
+{
     int retry = 5;
-    QTime dieTime= QTime::currentTime();
+    QTime dieTime = QTime::currentTime();
 
-    while(!onlineEngine && retry>0){
-        if(QTime::currentTime()>dieTime){
+    while (!onlineEngine && retry > 0)
+    {
+        if (QTime::currentTime() > dieTime)
+        {
             this->engine->sendGetStateCommand();
-            dieTime= QTime::currentTime().addMSecs(200);
+            dieTime = QTime::currentTime().addMSecs(200);
             retry--;
         }
     }
 
-    if (retry == 0) {
+    return retry;
+}
+
+void DoorManager::slotMoveTimout()
+{
+    int retry = this->verifyChange();
+
+    if (retry == 0)
+    {
         gui->setFailString("Превышано время открытия/закрытия ворот");
         return;
     }
 }
 
-DoorManager::DoorManager(){
+DoorManager::DoorManager()
+{
     engine = new DoorEngine(stateEngineIsGetting, stateEngineIsSetting);
     gui = new DoorGui(getStateGui);
-    moveTimer = new Qtimer();
+    moveTimer = new QTimer();
     connect(moveTimer, SIGNAL(timeout()), this, SLOT(slotMoveTimout()));
 }
-
