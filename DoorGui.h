@@ -1,3 +1,6 @@
+#ifndef DOORGUI_H
+#define DOORGUI_H
+
 class DoorGui : public QObject
 {
     Q_OBJECT
@@ -11,3 +14,4 @@ public:
 signals:
     void stateChanged(DoorState state);
 };
+#endif // DOORGUI_H

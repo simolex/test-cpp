@@ -4,6 +4,9 @@ enum DoorState
     Opened
 };
 
+#ifndef DOORENGINE_H
+#define DOORENGINE_H
+
 class DoorEngine : public QObject
 {
     Q_OBJECT
@@ -18,3 +21,5 @@ signals:
     void getStateResponseReceived(DoorState state);
     void setStateResponseReceived();
 };
+
+#endif // DOORENGINE_H
