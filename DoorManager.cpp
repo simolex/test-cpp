@@ -38,11 +38,22 @@ void DoorManager::getStateGui(DoorState state)
 void DoorManager::stateEngineIsSetting()
 {
     currentState = newState;
+
+    if(currentState == DoorState::Closed){
+        gui->setFailString("Ворота закрываются...");
+    }else{
+        gui->setFailString("Ворота открываются...");
+    }
 }
 
 void DoorManager::stateEngineIsGetting(DoorState state)
 {
     currentState = state;
+    if(currentState == DoorState::Closed){
+        gui->setFailString("Ворота закрыты");
+    }else{
+        gui->setFailString("Ворота открыты");
+    }
     onlineEngine = true;
 };
 
