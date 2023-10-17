@@ -5,11 +5,7 @@ void DoorManager::getStateGui(DoorState state)
 
     newState = state;
 
-    if (this->verifyChange() == 0)
-    {
-        gui->setFailString("Ворота не доступны. Проверьте свяэь с воротами!");
-        return;
-    }
+    
 
     if (newState == currentState)
     {
@@ -85,4 +81,9 @@ DoorManager::DoorManager()
     gui = new DoorGui(getStateGui);
     moveTimer = new QTimer();
     connect(moveTimer, SIGNAL(timeout()), this, SLOT(slotMoveTimout()));
+
+    if (this->verifyChange() == 0)
+    {
+        gui->setFailString("Ворота не доступны. Проверьте свяэь с воротами!");
+    }
 }
