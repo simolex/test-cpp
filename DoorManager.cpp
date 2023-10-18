@@ -2,10 +2,7 @@
 
 void DoorManager::getStateGui(DoorState state)
 {
-
     newState = state;
-
-    
 
     if (newState == currentState)
     {
@@ -88,8 +85,13 @@ void DoorManager::slotMoveTimout()
 
 DoorManager::DoorManager()
 {
-    engine = new DoorEngine(stateEngineIsGetting, stateEngineIsSetting);
-    gui = new DoorGui(getStateGui);
+    if(!engine){
+        engine = new DoorEngine(stateEngineIsGetting, stateEngineIsSetting);
+    }
+    if(!gui){
+        gui = new DoorGui(getStateGui);
+    }
+
     moveTimer = new QTimer();
     connect(moveTimer, SIGNAL(timeout()), this, SLOT(slotMoveTimout()));
 
@@ -98,3 +100,6 @@ DoorManager::DoorManager()
         gui->setFailString("Ворота не доступны. Проверьте свяэь с воротами!");
     }
 }
+
+DoorManager::gui = nullptr;
+DoorManager::engine = nullptr;

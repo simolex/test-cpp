@@ -11,17 +11,17 @@ class DoorManager : public QObject
 {
     Q_OBJECT
 private:
-    DoorState currentState;
-    DoorState newState;
-    bool onlineEngine;
+    static DoorState currentState;
+    static DoorState newState;
+    static bool onlineEngine;
+    static DoorGui *gui;
+    static DoorEngine *engine;
+
+    static void getStateGui(DoorState state);
+    static void stateEngineIsGetting(DoorState state);
+    static void stateEngineIsSetting();
+
     QTimer *moveTimer;
-
-    DoorGui *gui;
-    DoorEngine *engine;
-    void getStateGui(DoorState state);
-    void stateEngineIsGetting(DoorState state);
-    void stateEngineIsSetting();
-
     void setStateEngine(DoorState state);
     void verifyChange();
 
