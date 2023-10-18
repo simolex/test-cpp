@@ -63,7 +63,7 @@ int DoorManager::verifyChange()
     {
         if (QTime::currentTime() > dieTime)
         {
-            this->engine->sendGetStateCommand();
+            engine->sendGetStateCommand();
             dieTime = QTime::currentTime().addMSecs(200);
             retry--;
         }
