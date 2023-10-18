@@ -22,6 +22,7 @@ private:
     static void stateEngineIsSetting();
 
     QTimer *moveTimer;
+    QTimer *warningTimer;
     void setStateEngine(DoorState state);
     void verifyChange();
 
@@ -31,6 +32,7 @@ public:
 
 private slots:
     void slotMoveTimout();
+    void slotWarningTimout();
 };
 
 #endif // DOORMANAGER_H

@@ -25,7 +25,7 @@ void DoorManager::getStateGui(DoorState state)
     if (retry == 0)
     {
         gui->setFailString("Ворота не доступны. Проверьте свяэь с воротами!");
-        return;
+        warningTimer->start(3000); // Ожидание выхода из аварийной ситуации (интервал 3 сек)
     }
 
     onlineEngine = false;
@@ -75,11 +75,22 @@ int DoorManager::verifyChange()
 void DoorManager::slotMoveTimout()
 {
     int retry = this->verifyChange();
+    moveTimer->stop();
 
     if (retry == 0)
     {
         gui->setFailString("Превышано время открытия/закрытия ворот");
-        return;
+        warningTimer->start(3000); // Ожидание выхода из аварийной ситуации (интервал 3 сек)
+    }
+
+}
+
+void DoorManager::slotWarningTimout()
+{
+    int retry = this->verifyChange();
+
+    if(retry>0){
+        warningTimer->stop();
     }
 }
 
@@ -94,10 +105,13 @@ DoorManager::DoorManager()
 
     moveTimer = new QTimer();
     connect(moveTimer, SIGNAL(timeout()), this, SLOT(slotMoveTimout()));
+    warningTimer = new QTimer();
+    connect(warningTimer, SIGNAL(timeout()), this, SLOT(slotWarningTimout()));
 
     if (this->verifyChange() == 0)
     {
         gui->setFailString("Ворота не доступны. Проверьте свяэь с воротами!");
+        warningTimer->start(3000); // Ожидание выхода из аварийной ситуации (интервал 3 сек)
     }
 }
 
