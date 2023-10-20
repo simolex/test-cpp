@@ -35,10 +35,10 @@ private:
     QTimer *moveTimer;
     QTimer *warningTimer;
     QTimer *retryTimer;
-    void verifyChange();
-    int retryCounter;
 
-    void setStateEngine(DoorState state);
+    // void verifyChange();
+    int retryCounter;
+    void applyTargetState();
     // void sendTargetStateToEngine(DoorState state);
 
 
