@@ -29,61 +29,64 @@ void DoorManager::getStateGui(DoorState state)
     }
 
     onlineEngine = false;
-    moveTimer->start(30000);
+    
 }
 
 void DoorManager::stateEngineIsSetting()
 {
-    currentState = newState;
+    currentState = targetState;
 
-    if(currentState == DoorState::Closed){
-        gui->setFailString("Ворота закрываются...");
-    }else{
-        gui->setFailString("Ворота открываются...");
+    if(currentAction == DoorAction::SendingCommand){
+        currentAction = DoorAction::Moving;
+        retryTimer->stop();
+        moveTimer->start(30000);
+    }
+
+    if(gui && currentAction == DoorAction::Moving){
+        if(currentState == DoorState::Closed){
+            gui->setFailString("Ворота закрываются...");
+        }else{
+            gui->setFailString("Ворота открываются...");
+        }
     }
 }
 
 void DoorManager::stateEngineIsGetting(DoorState state)
 {
     currentState = state;
-    if(currentState == DoorState::Closed){
-        gui->setFailString("Ворота закрыты");
-    }else{
-        gui->setFailString("Ворота открыты");
-    }
-    onlineEngine = true;
-};
 
-int DoorManager::verifyChange()
-{
-    int retry = 5;
-    QTime dieTime = QTime::currentTime();
-
-    while (!onlineEngine && retry > 0)
-    {
-        if (QTime::currentTime() > dieTime)
-        {
-            engine->sendGetStateCommand();
-            dieTime = QTime::currentTime().addMSecs(200);
-            retry--;
+    if(gui){
+        if(currentState == DoorState::Closed){
+            gui->setFailString("Ворота закрыты");
+        }else{
+            gui->setFailString("Ворота открыты");
         }
     }
+    retryTimer->stop();
+    currentAction = DoorAction::Wait;
 
-    return retry;
-}
+    // onlineEngine = true;
+};
 
-void DoorManager::slotMoveTimout()
-{
-    int retry = this->verifyChange();
-    moveTimer->stop();
+// int DoorManager::verifyChange()
+// {
+//     int retry = 5;
+//     QTime dieTime = QTime::currentTime();
 
-    if (retry == 0)
-    {
-        gui->setFailString("Превышано время открытия/закрытия ворот");
-        warningTimer->start(3000); // Ожидание выхода из аварийной ситуации (интервал 3 сек)
-    }
+//     while (!onlineEngine && retry > 0)
+//     {
+//         if (QTime::currentTime() > dieTime)
+//         {
+//             engine->sendGetStateCommand();
+//             dieTime = QTime::currentTime().addMSecs(200);
+//             retry--;
+//         }
+//     }
 
-}
+//     return retry;
+// }
+
+
 
 void DoorManager::slotWarningTimout()
 {
@@ -92,6 +95,61 @@ void DoorManager::slotWarningTimout()
     if(retry>0){
         warningTimer->stop();
     }
+}
+
+void DoorManager::setStateEngine(DoorState state){
+    targetState = state;
+    if ( currentState == targetState)
+    {
+        return;
+    }
+
+    currentAction = DoorAction::SendingCommand;
+    retryCounter = 5;
+    retryTimer->start(200);
+}
+
+
+void DoorManager::slotRetryTimout(){
+
+    if(currentState == targetState && currentAction == DoorAction::Wait){ //need print flag TODO
+        if(currentState == DoorState::Closed){
+            gui->setFailString("Ворота закрыты");
+        }else{
+            gui->setFailString("Ворота открыты");
+        }
+    }
+
+    if(retryCounter>0){
+        switch (currentAction)
+        {
+            case DoorAction::SendingCommand:
+                engine->sendSetStateCommand(targetState);
+                break;
+            case DoorAction::Moving:
+                engine->sendGetStateCommand();
+                break;        
+        }
+        retryCounter--;
+    }
+
+    if(retryCounter==0){
+        switch (currentAction)
+        {
+            case DoorAction::SendingCommand:
+            case DoorAction::Moving:
+                retryTimer->stop(); // need print warning State
+                warningTimer->start(3000);
+                break;        
+        }
+        
+    }
+}
+
+void DoorManager::slotMoveTimout()
+{
+    retryCounter = 5;
+    retryTimer->start(200);
 }
 
 DoorManager::DoorManager()
@@ -104,11 +162,16 @@ DoorManager::DoorManager()
     }
 
     moveTimer = new QTimer();
+    moveTimer->setSingleShot(true);
     connect(moveTimer, SIGNAL(timeout()), this, SLOT(slotMoveTimout()));
+
     warningTimer = new QTimer();
     connect(warningTimer, SIGNAL(timeout()), this, SLOT(slotWarningTimout()));
 
-    if (this->verifyChange() == 0)
+    retryTimer = new QTimer();
+    connect(retryTimer, SIGNAL(timeout()), this, SLOT(slotRetryTimout()));
+
+    if (this->verifyChange() == 0) //TODO get real state from unknown state
     {
         gui->setFailString("Ворота не доступны. Проверьте свяэь с воротами!");
         warningTimer->start(3000); // Ожидание выхода из аварийной ситуации (интервал 3 сек)
