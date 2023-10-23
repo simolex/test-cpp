@@ -87,17 +87,6 @@ void DoorManager::stateEngineIsGetting(DoorState state)
 //     return retry;
 // }
 
-
-
-void DoorManager::slotWarningTimout()
-{
-    int retry = this->verifyChange();
-
-    if(retry>0){
-        warningTimer->stop();
-    }
-}
-
 void DoorManager::applyTargetState(){
 
     if ( currentState == targetState)
@@ -108,6 +97,21 @@ void DoorManager::applyTargetState(){
     currentAction = DoorAction::SendingCommand;
     retryCounter = 5;
     retryTimer->start(200);
+}
+
+void DoorManager::slotMoveTimout()
+{
+    retryCounter = 5;
+    retryTimer->start(200);
+}
+
+void DoorManager::slotWarningTimout()
+{
+    int retry = this->verifyChange();
+
+    if(retry>0){
+        warningTimer->stop();
+    }
 }
 
 
@@ -147,12 +151,6 @@ void DoorManager::slotRetryTimout(){
         }
         
     }
-}
-
-void DoorManager::slotMoveTimout()
-{
-    retryCounter = 5;
-    retryTimer->start(200);
 }
 
 DoorManager::DoorManager()
