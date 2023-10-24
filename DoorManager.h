@@ -19,6 +19,7 @@ class DoorManager : public QObject
     Q_OBJECT
 private:
     static DoorState newState; //depricate
+    static int instanceCount;
 
     static DoorState currentState;
     static DoorState targetState;
