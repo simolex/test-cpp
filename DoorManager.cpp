@@ -77,7 +77,7 @@ void DoorManager::slotWarningTimout()
 
     retryCounter = 5;
     retryTimer->start(200);
-    gui->setFailString("Выполняется подключение к воротам...");
+    gui->setFailString("Выполняется повторное подключение к воротам...");
 }
 
 void DoorManager::slotRetryTimout(){
@@ -131,7 +131,7 @@ DoorManager::DoorManager()
     }
 
     moveTimer = new QTimer();
-    moveTimer->setSingleShot(true);
+    moveTimer->setSingleShot(true); // включаем одиночный режим таймера
     connect(moveTimer, SIGNAL(timeout()), this, SLOT(slotMoveTimout()));
 
     retryTimer = new QTimer();
