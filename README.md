@@ -10,8 +10,12 @@
 -
 
 ```cpp
-#ifndef DOORMANAGER_H
-#define DOORMANAGER_H
+enum DoorAction{
+    SendingCommand,
+    Moving,
+    Wait,
+    Unknown
+}
 
 #include <QObject>
 #include <QTimer>
@@ -23,19 +27,26 @@ class DoorManager : public QObject
 {
     Q_OBJECT
 private:
-    DoorState currentState;
-    DoorState newState;
-    bool onlineEngine;
+    static int instanceCount;
+
+    static DoorState currentState;
+    static DoorState targetState;
+    static DoorAction currentAction;
+
+    static DoorGui *gui;
+    static DoorEngine *engine;
+
+    static void getStateGui(DoorState state);
+    static void stateEngineIsGetting(DoorState state);
+    static void stateEngineIsSetting();
+
     QTimer *moveTimer;
+    QTimer *warningTimer;
+    QTimer *retryTimer;
 
-    DoorGui *gui;
-    DoorEngine *engine;
-    void getStateGui(DoorState state);
-    void stateEngineIsGetting(DoorState state);
-    void stateEngineIsSetting();
+    int retryCounter;
+    void applyTargetState();
 
-    void setStateEngine(DoorState state);
-    void verifyChange();
 
 public:
     DoorManager();
@@ -43,7 +54,8 @@ public:
 
 private slots:
     void slotMoveTimout();
+    void slotWarningTimout();
+    void slotRetryTimout();
 };
 
-#endif // DOORMANAGER_H
 ```

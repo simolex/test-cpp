@@ -18,14 +18,12 @@ class DoorManager : public QObject
 {
     Q_OBJECT
 private:
-    static DoorState newState; //depricate
     static int instanceCount;
 
     static DoorState currentState;
     static DoorState targetState;
     static DoorAction currentAction;
 
-    static bool onlineEngine;
     static DoorGui *gui;
     static DoorEngine *engine;
 
@@ -37,17 +35,13 @@ private:
     QTimer *warningTimer;
     QTimer *retryTimer;
 
-    // void verifyChange();
     int retryCounter;
     void applyTargetState();
-    // void sendTargetStateToEngine(DoorState state);
 
 
 public:
     DoorManager();
     virtual ~DoorManager();
-
-signals:
 
 private slots:
     void slotMoveTimout();
