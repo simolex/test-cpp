@@ -38,7 +38,6 @@ private:
     int retryCounter;
     void applyTargetState();
 
-
 public:
     DoorManager();
     virtual ~DoorManager();
