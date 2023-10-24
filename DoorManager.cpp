@@ -83,7 +83,7 @@ void DoorManager::slotWarningTimout()
 
 void DoorManager::slotRetryTimout(){
 
-    if(currentState == targetState && currentAction == DoorAction::Wait){ //need print flag TODO
+    if(currentState == targetState && currentAction == DoorAction::Wait){
         if(currentState == DoorState::Closed){
             gui->setFailString("Ворота закрыты");
         }else{
@@ -111,7 +111,7 @@ void DoorManager::slotRetryTimout(){
             case DoorAction::SendingCommand:
             case DoorAction::Moving:
             case DoorAction::Unknown:
-                retryTimer->stop(); // need print warning State
+                retryTimer->stop();
                 warningTimer->start(3000);
                 break;        
         }
@@ -126,6 +126,7 @@ DoorManager::DoorManager()
     if(!engine){
         engine = new DoorEngine(stateEngineIsGetting, stateEngineIsSetting);
     }
+
     if(!gui){
         gui = new DoorGui(getStateGui);
     }
