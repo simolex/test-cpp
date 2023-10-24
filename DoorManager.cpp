@@ -52,7 +52,6 @@ void DoorManager::stateEngineIsGetting(DoorState state)
     
 };
 
-
 void DoorManager::applyTargetState(){
 
     if ( currentState == targetState)
